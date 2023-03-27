@@ -12,11 +12,11 @@ const inputCountry = e => {
   console.log(e.target.value.trim());
   const input = e.target.value.trim();
 
-  // if (input === '') {
-  //   countryInfo.innerHTML = '';
-  //   countryList.innerHTML = '';
-  //   return;
-  // }
+  if (input === '') {
+    countryInfo.innerHTML = '';
+    countryList.innerHTML = '';
+    return;
+  }
   fetchCountries(input)
     .then(data => {
       console.log(data);
@@ -30,6 +30,9 @@ const inputCountry = e => {
     })
     .catch(err => {
       Notify.info('Oops, there is no country with that name');
+      countryInfo.innerHTML = '';
+      countryList.innerHTML = '';
+      return err;
     });
 };
 
@@ -39,10 +42,11 @@ const renderHTML = data => {
   if (data.length === 1) {
     const markup = showCountryInfo(data);
     console.log(markup.join());
-    countryInfo.innerHTML = markup.join();
+    countryInfo.innerHTML = markup.join('');
     countryList.innerHTML = '';
   } else {
     const listMarkup = showCountryList(data);
+    console.log(listMarkup.join());
     countryList.innerHTML = listMarkup.join('');
     countryInfo.innerHTML = '';
   }
@@ -64,23 +68,16 @@ const showCountryInfo = data => {
   );
 };
 
-function countryСardTeemplate({ flags, name, capital, population, languages }) {
-  return `
-    <div class="country-info__container">
-      <div class="country-info__wrapper">
-        <img class="country-info__flags" src="${flags.svg}" alt="${
-    name.official
-  }" width="50" />
-        <h2 class="country-info__name">${name.official}</h2>
-      </div>
-      <p class="country-info__capital"><span class="country-info__weight">Capital:</span> ${capital}</p>
-      <p class="country-info__population"><span class="country-info__weight">Population:</span> ${population}</p>
-      <p class="country-info__languages"><span class="country-info__weight">Languages:</span> ${Object.values(
-        languages
-      )}</p>
-    </div>
-  `;
-}
+const showCountryList = data => {
+  return data.map(
+    ({ flags, name }) =>
+      `
+   <img src="${flags.svg}"  alt="country flag" width="50">
+      <h1 class ="name"> ${name.official}</h1>
+      
+    `
+  );
+};
 
 const url = 'https://restcountries.com/v3.1/name/';
 const filter = new URLSearchParams({

@@ -1,5 +1,6 @@
 import './css/styles.css';
 import debounce from 'lodash.debounce';
+import { Notify } from 'notiflix';
 
 const DEBOUNCE_DELAY = 300;
 const countryInfo = document.querySelector('.country-info');
@@ -10,39 +11,69 @@ const inputCountry = e => {
   e.preventDefault();
   console.log(e.target.value.trim());
   const input = e.target.value.trim();
-  fetchCountries(input).then(console.log);
-  console.log(length);
-  //   .then(data => {
-  //   countryInfo.innerHTML = showCountryInfo(data);
-  // });
+
+  if (input === '') {
+    countryInfo.innerHTML = '';
+    countryList.innerHTML = '';
+    return;
+  }
+  fetchCountries(input)
+    .then(data => {
+      console.log(data);
+      if (data.length > 10) {
+        Notify.info(
+          'Too many matches found. Please enter a more specific name.'
+        );
+        return;
+      }
+      renderHTML(data);
+    })
+    .catch(err => {
+      Notify.info('Oops, there is no country with that name');
+    });
 };
 
 searchbox.addEventListener('input', debounce(inputCountry, DEBOUNCE_DELAY));
 
-function showCountryInfo(data) {
+const renderHTML = data => {
+  if (data.length === 1) {
+    const markup = countrys.map(data => showCountryInfo(data));
+    countryInfo.innerHTML = markup.join('');
+    countryList.innerHTML = '';
+  } else {
+    const listMarkup = countrys.map(data => countryListTemplate(data));
+    countryList.innerHTML = listMarkup.join('');
+    countryInfo.innerHTML = '';
+  }
+};
+
+function showCountryInfo({ flags, name, capital, population, languages }) {
   return `<div class="searchbox">
-   <img src="${data[0].flags.svg}"  alt="country flag" width="120" height="100">
+   <img src="${flags.svg}"  alt="country flag" width="100">
       
       <div class="country">
-      <h1 class ="name"> ${data[0].name.official}</h1>
-      <p>Capital: <span>${data[0].capital}</span></p>
-      <p>languages: <span>${data[0].languages}</span></p>
-      <p>population: <span>${data[0].population}</span></p>
+      <h1 class ="name"> ${name.official}</h1>
+      <p>Capital: <span>${capital}</span></p>
+      <p class="country-info__languages"><span class="country-info__weight">Languages:</span> ${Object.values(
+        languages
+      )}</p>
+      <p>population: <span>${population}</span></p>
       </div>
     </div>`;
 }
-
-function fetchCountries(input) {
-  const url = 'https://restcountries.com/v3.1/name/';
-  const filter = '?fields=name,capital,population,flags,languages';
-  return fetch(`${url}${input}${filter}`).then(response => {
+const url = 'https://restcountries.com/v3.1/name/';
+const filter = new URLSearchParams({
+  fields: 'name,capital,population,flags,languages',
+});
+const fetchCountries = input => {
+  return fetch(`${url}${input}?${filter}`).then(response => {
     if (!response.ok) {
       throw new Error(response.status);
     }
 
     return response.json();
   });
-}
+};
 
 // fetchCountries(input)
 //   .then(countrys => {

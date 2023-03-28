@@ -42,11 +42,13 @@ const renderHTML = data => {
     console.log(markup.join());
     countryInfo.innerHTML = markup.join('');
     countryList.innerHTML = '';
+    countryInfo.insertAdjacentHTML('beforeend', markup.join());
   } else {
     const listMarkup = showCountryList(data);
     console.log(listMarkup.join());
     countryList.innerHTML = listMarkup.join('');
     countryInfo.innerHTML = '';
+    countryList.insertAdjacentHTML('beforeend', listMarkup.join(''));
   }
 };
 

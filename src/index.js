@@ -36,8 +36,6 @@ const inputCountry = e => {
     });
 };
 
-searchbox.addEventListener('input', debounce(inputCountry, DEBOUNCE_DELAY));
-
 const renderHTML = data => {
   if (data.length === 1) {
     const markup = showCountryInfo(data);
@@ -72,12 +70,14 @@ const showCountryList = data => {
   return data.map(
     ({ flags, name }) =>
       `
-   <img src="${flags.svg}"  alt="country flag" width="50">
-      <h1 class ="name"> ${name.official}</h1>
+   <li><img src="${flags.svg}"  alt="country flag" width="50">
+      <h1 class ="name"> ${name.official}</h1></li>
       
     `
   );
 };
+
+searchbox.addEventListener('input', debounce(inputCountry, DEBOUNCE_DELAY));
 
 const url = 'https://restcountries.com/v3.1/name/';
 const filter = new URLSearchParams({

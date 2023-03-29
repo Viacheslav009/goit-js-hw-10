@@ -42,7 +42,7 @@ p {
   padding: 0;
 }
 
-.country-list {
+.country-list__item {
   display: flex;
   align-items: center;
   margin-bottom: 5px;

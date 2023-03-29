@@ -16,7 +16,7 @@ function inputCountry() {
   // console.log(e.target.value.trim());
   const inputTEXT = searchbox.value.trim();
 
-  if (data.length === 0) {
+  if (!inputTEXT) {
     countryInfo.innerHTML = '';
     countryList.innerHTML = '';
     return;

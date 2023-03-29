@@ -6,7 +6,7 @@ import { fetchCountries } from './js/fetchCountries';
 
 const DEBOUNCE_DELAY = 300;
 const countryInfo = document.querySelector('.country-info');
-const countryList = document.querySelector('.country-info');
+const countryList = document.querySelector('.country-list');
 const searchbox = document.querySelector('#search-box');
 
 searchbox.addEventListener('input', debounce(inputCountry, DEBOUNCE_DELAY));
@@ -16,7 +16,7 @@ function inputCountry() {
   // console.log(e.target.value.trim());
   const inputTEXT = searchbox.value.trim();
 
-  if (!inputTEXT) {
+  if (data.length === 0) {
     countryInfo.innerHTML = '';
     countryList.innerHTML = '';
     return;
@@ -25,13 +25,26 @@ function inputCountry() {
   fetchCountries(inputTEXT)
     .then(data => {
       console.log(data);
-      if (data.length > 10) {
+      if (data.length === 1) {
+        const markup = showCountryInfo(data);
+        countryInfo.innerHTML = markup.join('');
+
+        countryList.innerHTML = '';
+      } else if (data.length <= 10) {
+        const listMarkup = showCountryList(data);
+        console.log(listMarkup.join());
+        countryList.innerHTML = listMarkup.join('');
+
+        countryInfo.innerHTML = '';
+      } else if (data.length > 10) {
+        countryInfo.innerHTML = '';
+        countryList.innerHTML = '';
         Notify.info(
           'Too many matches found. Please enter a more specific name.'
         );
         return;
       }
-      renderHTML(data);
+      // renderHTML(data);
     })
     .catch(err => {
       countryInfo.innerHTML = '';
@@ -40,23 +53,9 @@ function inputCountry() {
       return err;
     });
 }
-const renderHTML = data => {
-  if (data.length === 1) {
-    const markup = showCountryInfo(data);
-    console.log(markup.join());
-    countryInfo.innerHTML = markup.join('');
+// const renderHTML = data => {
 
-    countryList.innerHTML = '';
-    countryInfo.insertAdjacentHTML('beforeend', markup.join());
-  } else {
-    const listMarkup = showCountryList(data);
-    console.log(listMarkup.join());
-    countryList.innerHTML = listMarkup.join('');
-
-    countryInfo.innerHTML = '';
-    countryList.insertAdjacentHTML('beforeend', listMarkup.join(''));
-  }
-};
+// };
 const showCountryInfo = data => {
   return data.map(
     ({ flags, name, capital, population, languages }) =>
